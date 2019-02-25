@@ -1,134 +1,77 @@
 package testing.example.bank;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
-import java.util.function.BiConsumer;
-
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class BankAccountTest {
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
-	private static final int AMOUNT = 3;
-
-	private static final int INITIAL_BALANCE = 10;
 
 	@Test
 	public void testIdIsAutomaticallyAssignedAsPositiveNumber() {
 		// setup
 		BankAccount bankAccount = new BankAccount();
 		// verify
-		assertTrue("Id should be positive", bankAccount.getId() > 0);
+		assertThat(bankAccount.getId()).isNotNegative();
 	}
 
 	@Test
 	public void testIdsAreIncremental() {
-		assertTrue("Ids should be incremental", new BankAccount().getId() < new BankAccount().getId());
+		assertThat(new BankAccount().getId())
+			.isLessThan(new BankAccount().getId());
 	}
-
-	// WRONG VERSION!
-	// Works only if this is the first executed test
-//	@Test
-//	public void testIdsAreIncremental() {
-//		assertEquals(1, new BankAccount().getId());
-//		assertEquals(2, new BankAccount().getId());
-//	}
 
 	@Test
 	public void testDepositWhenAmountIsCorrectShouldIncreaseBalance() {
 		// setup
 		BankAccount bankAccount = new BankAccount();
-		bankAccount.setBalance(INITIAL_BALANCE);
+		bankAccount.setBalance(5);
 		// exercise
-		bankAccount.deposit(AMOUNT);
+		bankAccount.deposit(10);
 		// verify
-		assertEquals(INITIAL_BALANCE+AMOUNT, bankAccount.getBalance(), 0);
+		assertThat(bankAccount.getBalance()).isEqualTo(15);
+		// or with offset
+		assertThat(bankAccount.getBalance())
+			.isCloseTo(14.9, byLessThan(0.1));
 	}
 
 	@Test
 	public void testDepositWhenAmountIsNegativeShouldThrow() {
-		// setup
 		BankAccount bankAccount = new BankAccount();
-		try {
-			// exercise
-			bankAccount.deposit(-1);
-			fail("Expected an IllegalArgumentException to be thrown");
-		} catch (IllegalArgumentException e) {
-			// verify
-			assertEquals("Negative amount: -1.0", e.getMessage());
-			assertEquals(0, bankAccount.getBalance(), 0);
-		}
-	}
-
-	@Test
-	public void testDepositWhenAmountIsNegativeShouldThrowAlternative() {
-		BankAccount bankAccount = new BankAccount();
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Negative amount: -1.0");
-		bankAccount.deposit(-1);
-		// but we can't perform further assertions...
+		assertThatThrownBy(() -> bankAccount.deposit(-1))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Negative amount: -1.0");
+		// further assertions after the exception is thrown
+		assertThat(bankAccount.getBalance()).isZero();
 	}
 
 	@Test
 	public void testWithdrawWhenAmountIsNegativeShouldThrow() {
 		BankAccount bankAccount = new BankAccount();
-		try {
-			bankAccount.withdraw(-1);
-			fail("Expected an IllegalArgumentException to be thrown");
-		} catch (IllegalArgumentException e) {
-			assertEquals("Negative amount: -1.0", e.getMessage());
-			assertEquals(0, bankAccount.getBalance(), 0);
-		}
+		assertThatThrownBy(() -> bankAccount.withdraw(-1))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Negative amount: -1.0");
+		// further assertions after the exception is thrown
+		assertThat(bankAccount.getBalance()).isZero();
 	}
 
 	@Test
 	public void testWithdrawWhenBalanceIsUnsufficientShouldThrow() {
 		BankAccount bankAccount = new BankAccount();
-		try {
-			bankAccount.withdraw(AMOUNT);
-			fail("Expected an IllegalArgumentException to be thrown");
-		} catch (IllegalArgumentException e) {
-			assertEquals("Cannot withdraw 3.0 from 0.0", e.getMessage());
-			assertEquals(0, bankAccount.getBalance(), 0);
-		}
+		assertThatThrownBy(() -> bankAccount.withdraw(10))
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("Cannot withdraw 10.0 from 0.0");
+		assertThat(bankAccount.getBalance()).isZero();
 	}
 
 	@Test
 	public void testWithdrawWhenBalanceIsSufficientShouldDecreaseBalance() {
 		// setup
 		BankAccount bankAccount = new BankAccount();
-		bankAccount.setBalance(INITIAL_BALANCE);
+		bankAccount.setBalance(10);
 		// exercise
-		bankAccount.withdraw(AMOUNT); // the method we want to test
+		bankAccount.withdraw(3); // the method we want to test
 		// verify
-		assertEquals(INITIAL_BALANCE-AMOUNT, bankAccount.getBalance(), 0);
+		assertThat(bankAccount.getBalance()).isEqualTo(7);
 	}
 
-	@Test
-	public void testDepositWhenAmountIsNegativeShouldThrowRefactored() {
-		assertActionWithNegativeAmount(BankAccount::deposit);
-	}
-
-	@Test
-	public void testWithdrawWhenAmountIsNegativeShouldThrowRefactored() {
-		assertActionWithNegativeAmount(BankAccount::withdraw);
-	}
-
-	private void assertActionWithNegativeAmount(BiConsumer<BankAccount, Double> action) {
-		// setup
-		BankAccount bankAccount = new BankAccount();
-		try {
-			// exercise
-			action.accept(bankAccount, -1.0);
-			fail("Expected an IllegalArgumentException to be thrown");
-		} catch (IllegalArgumentException e) {
-			// verify
-			assertEquals("Negative amount: -1.0", e.getMessage());
-			assertEquals(0, bankAccount.getBalance(), 0);
-		}
-	}
 }
