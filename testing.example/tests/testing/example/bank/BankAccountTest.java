@@ -97,13 +97,11 @@ public class BankAccountTest {
 		}
 	}
 
-	// Not very clean test! DON'T DO THAT!
 	@Test
 	public void testWithdrawWhenBalanceIsSufficientShouldDecreaseBalance() {
 		// setup
 		BankAccount bankAccount = new BankAccount();
-		// use another method with logic for the setup
-		bankAccount.deposit(10);
+		bankAccount.setBalance(10);
 		// exercise
 		bankAccount.withdraw(3); // the method we want to test
 		// verify
