@@ -72,4 +72,28 @@ public class BankAccountTest {
 		bankAccount.deposit(-1);
 		// but we can't perform further assertions...
 	}
+
+	@Test
+	public void testWithdrawWhenAmountIsNegativeShouldThrow() {
+		BankAccount bankAccount = new BankAccount();
+		try {
+			bankAccount.withdraw(-1);
+			fail("Expected an IllegalArgumentException to be thrown");
+		} catch (IllegalArgumentException e) {
+			assertEquals("Negative amount: -1.0", e.getMessage());
+			assertEquals(0, bankAccount.getBalance(), 0);
+		}
+	}
+
+	@Test
+	public void testWithdrawWhenBalanceIsUnsufficientShouldThrow() {
+		BankAccount bankAccount = new BankAccount();
+		try {
+			bankAccount.withdraw(10);
+			fail("Expected an IllegalArgumentException to be thrown");
+		} catch (IllegalArgumentException e) {
+			assertEquals("Cannot withdraw 10.0 from 0.0", e.getMessage());
+			assertEquals(0, bankAccount.getBalance(), 0);
+		}
+	}
 }
