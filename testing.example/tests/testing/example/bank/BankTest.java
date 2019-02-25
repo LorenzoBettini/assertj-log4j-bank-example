@@ -1,24 +1,15 @@
 package testing.example.bank;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class BankTest {
-
-	private static final int AMOUNT = 5;
-
-	private static final int INITIAL_BALANCE = 10;
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	private Bank bank;
 
@@ -27,51 +18,54 @@ public class BankTest {
 
 	@Before
 	public void setup() {
-		bankAccounts = new ArrayList<BankAccount>();
+		bankAccounts = new ArrayList<>();
 		bank = new Bank(bankAccounts);
 	}
 
 	@Test
 	public void testOpenNewAccountShouldReturnAPositiveIdAndStoreTheAccount() {
 		int newAccountId = bank.openNewBankAccount(0);
-		assertTrue("Unexpected non positive id: " + newAccountId, newAccountId > 0);
-		assertEquals(newAccountId, bankAccounts.get(0).getId());
+		assertThat(newAccountId).isGreaterThan(0);
+		assertThat(bankAccounts).
+			hasSize(1).
+			extracting(BankAccount::getId).
+				contains(newAccountId);
 	}
 
 	@Test
 	public void testDepositWhenAccountIsNotFoundShouldThrow() {
-		thrown.expect(NoSuchElementException.class);
-		thrown.expectMessage("No account found with id: 1");
-		bank.deposit(1, INITIAL_BALANCE);
+		assertThatThrownBy(() -> bank.deposit(1, 10))
+			.isInstanceOf(NoSuchElementException.class)
+			.hasMessage("No account found with id: 1");
 	}
 
 	@Test
 	public void testDepositWhenAccountIsFoundShouldIncrementBalance() {
 		// setup
-		BankAccount testAccount = createTestAccount(INITIAL_BALANCE);
+		BankAccount testAccount = createTestAccount(10);
 		bankAccounts.add(testAccount);
 		// exercise
-		bank.deposit(testAccount.getId(), AMOUNT);
+		bank.deposit(testAccount.getId(), 5);
 		// verify
-		assertEquals(INITIAL_BALANCE+AMOUNT, testAccount.getBalance(), 0);
+		assertThat(testAccount.getBalance()).isEqualTo(15);
 	}
 
 	@Test
 	public void testWithdrawWhenAccountIsNotFoundShouldThrow() {
-		thrown.expect(NoSuchElementException.class);
-		thrown.expectMessage("No account found with id: 1");
-		bank.withdraw(1, AMOUNT);
+		assertThatThrownBy(() -> bank.withdraw(1, 10))
+			.isInstanceOf(NoSuchElementException.class)
+			.hasMessage("No account found with id: 1");
 	}
 
 	@Test
 	public void testWithdrawWhenAccountIsFoundShouldDecrementBalance() {
 		// setup
-		BankAccount testAccount = createTestAccount(INITIAL_BALANCE);
+		BankAccount testAccount = createTestAccount(10);
 		bankAccounts.add(testAccount);
 		// exercise
-		bank.withdraw(testAccount.getId(), AMOUNT);
+		bank.withdraw(testAccount.getId(), 5);
 		// verify
-		assertEquals(INITIAL_BALANCE-AMOUNT, testAccount.getBalance(), 0);
+		assertThat(testAccount.getBalance()).isEqualTo(5);
 	}
 
 	/**
