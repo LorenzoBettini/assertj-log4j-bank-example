@@ -26,12 +26,12 @@ public class Bank {
 
 	public void deposit(int bankAccountId, double amount) {
 		findBankAccountById(bankAccountId).deposit(amount);
-		if (LOGGER.isDebugEnabled())
-			LOGGER.debug(String.format("Success: deposit(%d, %.2f)", bankAccountId, amount));
+		LOGGER.debug(() -> String.format("Success: deposit(%d, %.2f)", bankAccountId, amount));
 	}
 
 	public void withdraw(int bankAccountId, double amount) {
 		findBankAccountById(bankAccountId).withdraw(amount);
+		LOGGER.debug(() -> String.format("Success: withdraw(%d, %.2f)", bankAccountId, amount));
 	}
 
 	private BankAccount findBankAccountById(int bankAccountId) {
