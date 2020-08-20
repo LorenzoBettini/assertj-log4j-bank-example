@@ -25,7 +25,7 @@ public class BankTest {
 	@Test
 	public void testOpenNewAccountShouldReturnAPositiveIdAndStoreTheAccount() {
 		int newAccountId = bank.openNewBankAccount(0);
-		assertThat(newAccountId).isGreaterThan(0);
+		assertThat(newAccountId).isPositive();
 		assertThat(bankAccounts).
 			hasSize(1).
 			extracting(BankAccount::getId).
