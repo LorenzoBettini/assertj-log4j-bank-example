@@ -28,8 +28,8 @@ public class BankTest {
 		assertThat(newAccountId).isPositive();
 		assertThat(bankAccounts).
 			hasSize(1).
-			extracting(BankAccount::getId).
-				contains(newAccountId);
+			extracting(BankAccount::getId)
+				.contains(newAccountId);
 	}
 
 	@Test
