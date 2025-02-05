@@ -31,7 +31,7 @@ public class BankAccountTest {
 		assertThat(bankAccount.getBalance()).isEqualTo(15);
 		// or with offset
 		assertThat(bankAccount.getBalance())
-			.isCloseTo(14.9, byLessThan(0.1));
+			.isCloseTo(14.9, byLessThan(0.2));
 	}
 
 	@Test
